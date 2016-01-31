@@ -8,7 +8,10 @@ describe ApiPlugin do
   let(:subject) { ApiPlugin.new }
 
   describe "api_key behavior" do
-    it "promps user for email if no key is saved"
+    it "promps user for email if no key is saved" do
+      File.open("api_key.txt", "w"){ |f| f.truncate(0) }
+      expect(subject.ready?).to be false
+    end
     it "formats post request to known format"
     it "receives my_key upon request"
     it "saves my_key in seperate file"
