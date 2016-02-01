@@ -68,3 +68,6 @@ list: tiramisu by 9
 list: Soylent by 10
 list: Soylent by 10
 list: Soylent - 5 Gallons by 10
+
+code:201 message:Created
+body:{"id":12,"name":"carrots","user_id":15,"created_at":"2016-02-01T03:21:07.393Z","updated_at":"2016-02-01T03:21:07.393Z"}

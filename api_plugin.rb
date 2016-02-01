@@ -19,6 +19,12 @@ class ApiPlugin
     load_my_key
   end
 
+  def new_potluck_item(item)
+    send_new_item_post(item)
+    return errors if errors
+    potluck_items
+  end
+
   def potluck_items
     @potluck_items || fetch_potluck_items
   end
@@ -27,7 +33,7 @@ class ApiPlugin
     @ready
   end
 
-  # private
+  private
   attr_accessor :my_key
   attr_writer :ready, :errors, :potluck_items
 
@@ -51,14 +57,16 @@ class ApiPlugin
   end
 
   def fetch_potluck_items
-    parse_get_items_response(
-      Net::HTTP.get_response(
-        get_items_uri
-      )
-    )
+    parse_get_items_response( Net::HTTP.get_response( make_items_uri ) )
   end
 
-  def get_items_uri
+  def send_new_item_post(new_item)
+    http    = construct_potluck_http
+    request = construct_new_item_request(new_item)
+    parse_new_item_api_response(http.request(request))
+  end
+
+  def make_items_uri
     uri       = URI("https://potluck-api.herokuapp.com")
     uri.path  = "/items"
     uri.query = "api_key="+my_key
@@ -70,6 +78,18 @@ class ApiPlugin
     potluck_http = Net::HTTP.new(uri.host, uri.port)
     potluck_http.use_ssl = true
     potluck_http
+  end
+
+  def construct_new_item_request(new_item)
+    api_resource = "/items"
+    header       = { "Content-Type" => "application/json" }
+    request      = Net::HTTP::Post.new(api_resource, header)
+
+    request.body = { "api_key" => my_key, 
+                     "item" => { "name" => new_item }
+                     }.to_json
+
+    request
   end
 
   def construct_new_user_request(user_email)
@@ -103,21 +123,26 @@ class ApiPlugin
     end
   end
 
-  def log_data(data)
-    File.open("log.txt", "a") { |f| f.puts data }
+  def parse_new_item_api_response(api_response)
+    if api_response.code == "201"
+      fetch_potluck_items
+    else
+      # no model validations that would cause this to error right now
+      self.errors = "something went wrong"
+    end
   end
 
   def save_my_key(new_api_key)
     File.open("api_key.txt", "w") { |f| f.write(new_api_key) }
   end
 
+  # def log_response(response)
+  #   log_data("\n")
+  #   log_data("code:#{response.code} message:#{response.message}")
+  #   log_data("body:#{response.body}")
+  # end
 
+  # def log_data(data)
+  #   File.open("log.txt", "a") { |f| f.puts data }
+  # end
 end
-
-tst = ApiPlugin.new
-# puts tst.my_key
-# puts tst.has_api_key?
-# tst.fetch_new_api_key_for("test4@email.com")
-# p tst.errors
-puts tst.potluck_items
-# puts tst.ready?
