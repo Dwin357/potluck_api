@@ -1,0 +1,27 @@
+#<Net::HTTPCreated:0x00558e272030e0>
+code:201
+message:Created
+body:{"id":12,"email":"test2@email.com","api_key":"db3995142d53785baf40574dbe74d63a","created_at":"2016-02-01T01:28:57.307Z","updated_at":"2016-02-01T01:28:57.307Z"}
+code:422
+message:Unprocessable Entity
+body:{"email":["has already been taken"]}
+
+code:422
+message:Unprocessable Entity
+body:{"email":["has already been taken"]}
+errors: ["has already been taken"]
+
+code:201
+message:Created
+body:{"id":13,"email":"test3@email.com","api_key":"dce9e0244ce2c4683277136fb6ff43e4","created_at":"2016-02-01T01:46:18.799Z","updated_at":"2016-02-01T01:46:18.799Z"}
+errors: test3@email.com
+
+code:201
+message:Created
+body:{"id":14,"email":"test4@email.com","api_key":"b3ee76e8730fbff31c24f783ffbb4cbc","created_at":"2016-02-01T01:48:08.727Z","updated_at":"2016-02-01T01:48:08.727Z"}
+key: b3ee76e8730fbff31c24f783ffbb4cbc
+
+code:422
+message:Unprocessable Entity
+body:{"email":["has already been taken"]}
+errors: ["has already been taken"]

@@ -12,7 +12,7 @@ describe ApiPlugin do
       File.open("api_key.txt", "w"){ |f| f.truncate(0) }
       expect(subject.ready?).to be false
     end
-    it "formats post request to known format"
+    it "formats post request for key to known format"
     it "receives my_key upon request"
     it "saves my_key in seperate file"
     it "acesses my_key through an environment constant"
