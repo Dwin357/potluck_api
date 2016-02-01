@@ -38,6 +38,11 @@ class Interface
           display("no errors, good job")
         end
         next_command
+      when ""
+        next_command
+      else
+        display("Unrecognized command, type help or -h for a list of commands")
+        next_command
       end
     end
   end
