@@ -15,13 +15,13 @@ class ApiPlugin
 
   def new_user(user_email)
     fetch_new_api_key_for(user_email)
-    return errors if errors
+    return errors unless ready?
     load_my_key
   end
 
   def new_potluck_item(item)
     send_new_item_post(item)
-    return errors if errors
+    return errors unless ready?
     potluck_items
   end
 
@@ -128,7 +128,7 @@ class ApiPlugin
       fetch_potluck_items
     else
       # no model validations that would cause this to error right now
-      self.errors = "something went wrong"
+      self.errors = ["something went wrong"]
     end
   end
 
