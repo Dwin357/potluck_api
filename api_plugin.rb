@@ -3,7 +3,7 @@ require "uri"
 require "json"
 
 class ApiPlugin
-  attr_reader :potluck_items, :errors
+  attr_reader :errors
   def initialize
     @my_key
     @potluck_items
@@ -19,13 +19,17 @@ class ApiPlugin
     load_my_key
   end
 
+  def potluck_items
+    @potluck_items || fetch_potluck_items
+  end
+
   def ready?
     @ready
   end
 
-  private
+  # private
   attr_accessor :my_key
-  attr_writer :ready, :errors
+  attr_writer :ready, :errors, :potluck_items
 
   def has_api_key?
     !File.zero?("api_key.txt")
@@ -33,7 +37,7 @@ class ApiPlugin
 
   def load_my_key
     if has_api_key?
-      my_key = File.open("api_key.txt", "r") { |f| f.read }
+      self.my_key = File.open("api_key.txt", "r") { |f| f.read }
       self.ready = true
     else
       self.ready = false
@@ -44,6 +48,21 @@ class ApiPlugin
     http    = construct_potluck_http
     request = construct_new_user_request(user_email)
     parse_user_api_response(http.request(request))
+  end
+
+  def fetch_potluck_items
+    parse_get_items_response(
+      Net::HTTP.get_response(
+        get_items_uri
+      )
+    )
+  end
+
+  def get_items_uri
+    uri       = URI("https://potluck-api.herokuapp.com")
+    uri.path  = "/items"
+    uri.query = "api_key="+my_key
+    uri
   end
 
   def construct_potluck_http
@@ -72,6 +91,18 @@ class ApiPlugin
     end
   end
 
+  def parse_get_items_response(api_response)
+    response = JSON.parse(api_response.body)
+
+    if api_response.code == "200"
+      self.potluck_items = response.map do |item|
+        item["name"] + " brought by " + item["user_id"].to_s
+      end
+    else
+      self.errors = response['errors']
+    end
+  end
+
   def log_data(data)
     File.open("log.txt", "a") { |f| f.puts data }
   end
@@ -84,8 +115,9 @@ class ApiPlugin
 end
 
 tst = ApiPlugin.new
+# puts tst.my_key
 # puts tst.has_api_key?
 # tst.fetch_new_api_key_for("test4@email.com")
 # p tst.errors
-tst.new_user("test5@email.com")
-puts tst.ready?
+puts tst.potluck_items
+# puts tst.ready?
