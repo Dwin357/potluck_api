@@ -15,13 +15,11 @@ class ApiPlugin
 
   def new_user(user_email)
     fetch_new_api_key_for(user_email)
-    return errors unless ready?
     load_my_key
   end
 
   def new_potluck_item(item)
     send_new_item_post(item)
-    return errors unless ready?
     potluck_items
   end
 
@@ -107,6 +105,7 @@ class ApiPlugin
     if api_response.code == "201"
       save_my_key(response_hash['api_key'])
     else
+      self.ready  = false
       self.errors = response_hash['email']
     end
   end
@@ -119,6 +118,7 @@ class ApiPlugin
         item["name"] + " brought by " + item["user_id"].to_s
       end
     else
+      self.ready  = false
       self.errors = response['errors']
     end
   end
@@ -128,6 +128,7 @@ class ApiPlugin
       fetch_potluck_items
     else
       # no model validations that would cause this to error right now
+      self.ready  = false
       self.errors = ["something went wrong"]
     end
   end
